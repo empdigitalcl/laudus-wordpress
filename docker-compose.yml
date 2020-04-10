@@ -1,0 +1,35 @@
+# docker-compose.yaml.
+# Por: victorhugo.avila@enviame.io
+# Definiciones para levantar tokyo en entorno local.
+# Utiliza variables .env del directorio raiz y Dockerfile que se encuentra en la raiz.
+
+version: '2'
+services:
+ base_gae:
+  build: './'
+  container_name: ${SERVICE_NAME}
+  volumes:
+   - ${CODE}:/app
+   - ./deploy-conf/nginx/nginx-app.conf:/etc/nginx/conf.d/nginx-app.conf
+  ports:
+   - "${PORT}:8080"
+  networks:
+    - backend
+# The Database
+ mysql:
+  image: mysql:latest
+  command: --default-authentication-plugin=mysql_native_password
+  container_name: dentalmysql
+  ports:
+   - 33073:3306
+  environment:
+   MYSQL_ROOT_PASSWORD: 123
+   MYSQL_DATABASE: nb2_dev_dental
+   MYSQL_USER: newbits_dev
+   MYSQL_PASSWORD: PDUmwMjLjzGPpj6J
+  networks:
+   - backend
+networks:
+  backend:
+    external:
+      name: nbred
