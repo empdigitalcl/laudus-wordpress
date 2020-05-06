@@ -127,7 +127,7 @@ class SyncController extends Controller
     private function updateWooCProduct($productId, $fields) {
         echo 'products/'.$productId.'<br>';
         $response = Woocommerce::put('products/'.$productId, $fields);
-        dd($response);
+        print_r($response);
     }
     public function syncStock() {
         $products = $this->laudusStock();
