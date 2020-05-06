@@ -103,10 +103,10 @@ class SyncController extends Controller
         ];
         return Woocommerce::get('products', $params);
     }
-    public function syncProducts() {
+    public function syncProducts($code = null) {
         $products = $this->laudusProducts();
         foreach ($products as $product) {
-            if ($product->code == 'CIR2317') {
+            if ($code == null || ($code != null && $product->code == $code)) {
                 echo 'Capturando codigo='.$product->code.' precio='.$product->unitPrice.' > '.$product->productId.'<br>';
                 $WCProduct = $this->getWooCProductBySKU($product->code);
                 if (count($WCProduct) > 0) {

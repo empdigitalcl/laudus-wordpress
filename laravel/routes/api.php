@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 Route::get('sync/index', 'SyncController@index');
-Route::get('sync/products', 'SyncController@syncProducts');
+Route::get('sync/products/{code?}', 'SyncController@syncProducts');
 Route::get('sync/stock', 'SyncController@syncStock');
 Route::get('sync/orders', 'SyncController@getOrders');
 Route::group(['middleware' => 'auth'], function(){
