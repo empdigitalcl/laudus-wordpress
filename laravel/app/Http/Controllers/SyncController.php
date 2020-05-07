@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Woocommerce;
+use App\Sync;
 
 class SyncController extends Controller
 {
@@ -81,12 +82,6 @@ class SyncController extends Controller
         // var_dump($response);
         $this->laudusToken = $response->token;
     }
-    private function laudusProducts() {
-        $this->laudusLogin();
-        $method = 'products/get/list/complete';
-        $response = $this->laudusConnection($method, 'GET');
-        return $response;
-    }
     private function laudusStockByProductId ($productId) {
         $this->laudusLogin();
         $method = 'products/get/stock/'.$productId;
@@ -103,24 +98,68 @@ class SyncController extends Controller
         ];
         return Woocommerce::get('products', $params);
     }
-    public function syncProducts($code = null) {
-        $products = $this->laudusProducts();
-        foreach ($products as $product) {
-            if ($code == null || ($code != null && $product->code == $code)) {
-                echo 'Capturando codigo='.$product->code.' precio='.$product->unitPrice.' > '.$product->productId.'<br>';
-                $WCProduct = $this->getWooCProductBySKU($product->code);
+    public function syncLaudusProducts() {
+        $this->laudusLogin();
+        $method = 'products/get/list/complete';
+        $response = $this->laudusConnection($method, 'GET');
+        $session = date('YmdHis');
+        foreach ($response as $product) {
+            $sync = Sync::BySku($product->code)->first();
+            if (!$sync) {
+                $sync = new Sync();
+                $sync->status = 1;
+                $sync->sku = $product->code;
+            }
+            $isUpdate = false;
+            if ($product->unitPrice != $sync->netPrice) {
+                $isUpdate = true;
+                $sync->netPrice = $product->unitPrice;
+            }
+            if ($isUpdate) {
+                $sync->status = 1;
+            }
+            $sync->session = $session;
+            $sync->save();
+        }
+    }
+    public function syncLaudusStock() {
+        $this->laudusLogin();
+        $method = 'products/get/list/stock';
+        $data = [
+            'warehouseId' => $this->wharehouseId
+        ];
+        $response = $this->laudusConnection($method, 'GET', $data);
+        foreach ($response as $product) {
+            $sync = Sync::BySku($product->code)->first();
+            if ($sync && $sync->count() > 0) {
+                if ($product->stock != $sync->availableStock) {
+                    $isUpdate = true;
+                    $sync->stockAvailable = $product->stock;
+                    $sync->status = 1;
+                    $sync->save();
+                }
+            }
+        }
+    }
+
+    public function syncWCProducts() {
+        $take = 10;
+        $syncs = Sync::Pending()->paginate($take);
+        if ($syncs->count() > 0) {
+            foreach ($syncs as $sync) {
+                $WCProduct = $this->getWooCProductBySKU($sync->sku);
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
-                        $stock = $this->laudusStockByProductId($product->productId);
                         $fields = [
-                            'price' => (string)(round($product->unitPrice * 1.19)),
-                            'regular_price' => (string)(round($product->unitPrice * 1.19)),
-                            'stock_quantity' => (string)($stock->stock)
-                    ];
+                            'price' => (string)(round($sync->unitPrice * 1.19)),
+                            'regular_price' => (string)(round($sync->unitPrice * 1.19)),
+                            'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
+                        ];
                         $this->updateWooCProduct($item['id'], $fields);
+                        $sync->status = 2;
+                        $sync->save();
                     }
                 }
-                
             }
         }
     }
