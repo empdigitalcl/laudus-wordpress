@@ -155,11 +155,15 @@ class SyncController extends Controller
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
                         $fields = [
-                            'price' => (string)(round($sync->unitPrice * 1.19)),
-                            'regular_price' => (string)(round($sync->unitPrice * 1.19)),
+                            'price' => (string)(round($sync->netPrice * 1.19)),
+                            'regular_price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
                         ];
-                        $this->updateWooCProduct($item['id'], $fields);
+                        try {
+                            $this->updateWooCProduct($item['id'], $fields);
+                        } catch (\Exception $exc) {
+                            echo $exc->getMessage();
+                        }
                         $sync->status = 2;
                         $sync->save();
                     }
