@@ -193,12 +193,14 @@ class SyncController extends Controller
 
     public function syncWCProducts() {
         $take = 10;
-        $syncs = Sync::Pending()->paginate($take);
+        $syncs = Sync::Pending()->orderBy('session', 'ASC')->paginate($take);
         if ($syncs->count() > 0) {
             foreach ($syncs as $sync) {
+                echo $sync->sku.'<br>';
                 $WCProduct = $this->getWooCProductBySKU($sync->sku);
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
+                        echo $sync->sku.': '.$item['id'].'<br>';
                         $fields = [
                             'price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
@@ -209,8 +211,10 @@ class SyncController extends Controller
                         try {
                             if ($item['type'] != 'variation') {
                                 $this->updateWooCProduct($item['id'], $fields); 
+                                echo 'OK<br>';
                             } else {
                                 $this->updateWooCProductVariation($item['parent_id'], $item['id'], $fields);
+                                echo 'OK<br>';
                             }
                         } catch (\Exception $exc) {
                             echo $exc->getMessage();
@@ -219,6 +223,10 @@ class SyncController extends Controller
                         $sync->status = 2;
                         $sync->save();
                     }
+                } else {
+                    $sync->session = date('YmdHis');
+                    $sync->save();
+                    echo 'No encontrado<br>';
                 }
             }
         }
@@ -241,8 +249,10 @@ class SyncController extends Controller
                         try {
                             // var_dump($fields);
                             if ($item['type'] != 'variation') {
+                                echo ' normal '.$sync->sku.': '.$item['id'].'<br>';
                                 $this->updateWooCProduct($item['id'], $fields); 
                             } else {
+                                echo ' variante '.$sync->sku.': '.$item['parent_id'].' > '. $item['id'].'<br>';
                                 $this->updateWooCProductVariation($item['parent_id'], $item['id'], $fields);
                             }
                         } catch (\Exception $exc) {
