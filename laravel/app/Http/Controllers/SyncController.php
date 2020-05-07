@@ -103,23 +103,25 @@ class SyncController extends Controller
         $method = 'products/get/list/complete';
         $response = $this->laudusConnection($method, 'GET');
         $session = date('YmdHis');
-        foreach ($response as $product) {
-            $sync = Sync::BySku($product->code)->first();
-            if (!$sync) {
-                $sync = new Sync();
-                $sync->status = 1;
-                $sync->sku = $product->code;
+        if ($response != null) {
+            foreach ($response as $product) {
+                $sync = Sync::BySku($product->code)->first();
+                if (!$sync) {
+                    $sync = new Sync();
+                    $sync->status = 1;
+                    $sync->sku = $product->code;
+                }
+                $isUpdate = false;
+                if ($product->unitPrice != $sync->netPrice) {
+                    $isUpdate = true;
+                    $sync->netPrice = $product->unitPrice;
+                }
+                if ($isUpdate) {
+                    $sync->status = 1;
+                }
+                $sync->session = $session;
+                $sync->save();
             }
-            $isUpdate = false;
-            if ($product->unitPrice != $sync->netPrice) {
-                $isUpdate = true;
-                $sync->netPrice = $product->unitPrice;
-            }
-            if ($isUpdate) {
-                $sync->status = 1;
-            }
-            $sync->session = $session;
-            $sync->save();
         }
     }
     public function syncLaudusStock() {
@@ -129,14 +131,16 @@ class SyncController extends Controller
             'warehouseId' => $this->wharehouseId
         ];
         $response = $this->laudusConnection($method, 'GET', $data);
-        foreach ($response as $product) {
-            $sync = Sync::BySku($product->code)->first();
-            if ($sync && $sync->count() > 0) {
-                if ($product->stock != $sync->availableStock) {
-                    $isUpdate = true;
-                    $sync->stockAvailable = $product->stock;
-                    $sync->status = 1;
-                    $sync->save();
+        if ($reponse != null) {
+            foreach ($response as $product) {
+                $sync = Sync::BySku($product->code)->first();
+                if ($sync && $sync->count() > 0) {
+                    if ($product->stock != $sync->availableStock) {
+                        $isUpdate = true;
+                        $sync->stockAvailable = $product->stock;
+                        $sync->status = 1;
+                        $sync->save();
+                    }
                 }
             }
         }
