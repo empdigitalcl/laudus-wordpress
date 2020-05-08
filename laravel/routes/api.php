@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 Route::get('sync/index', 'SyncController@index');
 Route::get('sync/laudus/products/{code?}', 'SyncController@syncLaudusProducts');
 Route::get('sync/laudus/stock', 'SyncController@syncLaudusStock');
-Route::get('sync/wc/products', 'SyncController@syncWCProducts');
+Route::get('sync/wc/products/{take?}', 'SyncController@syncWCProducts');
 Route::get('sync/wc/products/{sku}', 'SyncController@syncWCProductsBySku');
 Route::get('sync/stock', 'SyncController@syncStock');
 Route::get('sync/orders', 'SyncController@getOrders');

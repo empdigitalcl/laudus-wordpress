@@ -191,8 +191,7 @@ class SyncController extends Controller
         }
     }
 
-    public function syncWCProducts() {
-        $take = 10;
+    public function syncWCProducts($take = 10) {
         $syncs = Sync::Pending()->orderBy('session', 'ASC')->paginate($take);
         if ($syncs->count() > 0) {
             foreach ($syncs as $sync) {
