@@ -176,7 +176,7 @@ class SyncController extends Controller
             'warehouseId' => $this->wharehouseId
         ];
         $response = $this->laudusConnection($method, 'GET', $data);
-        if ($reponse != null) {
+        if ($response != null) {
             foreach ($response as $product) {
                 $sync = Sync::BySku($product->code)->first();
                 if ($sync && $sync->count() > 0) {
