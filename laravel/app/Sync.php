@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Sync extends Model
 {
     protected $fillable = [
+        'wooProductId',
+        'laudusProductId',
         'status',
         'sku',
         'stockAvailable',

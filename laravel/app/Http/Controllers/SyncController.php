@@ -94,6 +94,7 @@ class SyncController extends Controller
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
                 CURLOPT_TIMEOUT => 30000,
+                CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => $method,
                 CURLOPT_HTTPHEADER => $headers,
@@ -122,8 +123,7 @@ class SyncController extends Controller
             'password' => $this->password,
             'companyVatId' => $this->companyVatId
         ];
-        $response = $this->laudusConnection($method, 'POST', $credentials);
-        // var_dump($response);
+        $response = $this->laudusConnection($method, 'GET', $credentials);
         $this->laudusToken = $response->token;
     }
     private function laudusStockByProductId ($productId) {
@@ -164,6 +164,7 @@ class SyncController extends Controller
                 if ($isUpdate) {
                     $sync->status = 1;
                 }
+                $sync->laudusProductId = $product->productId;
                 $sync->session = $session;
                 $sync->save();
             }
@@ -219,10 +220,12 @@ class SyncController extends Controller
                             echo $exc->getMessage();
                             echo '<pre>';print_r($item); echo '</pre>';
                         }
+                        $sync->woocProductId = $item['id'];
                         $sync->status = 2;
                         $sync->save();
                     }
                 } else {
+                    $sync->status = 3;
                     $sync->session = date('YmdHis');
                     $sync->save();
                     echo 'No encontrado<br>';
@@ -258,6 +261,7 @@ class SyncController extends Controller
                             echo $exc->getMessage();
                             echo '<pre>';print_r($item); echo '</pre>';
                         }
+                        $sync->woocProductId = $item['id'];
                         $sync->status = 2;
                         $sync->save();
                     }
