@@ -14,6 +14,8 @@ class Sync extends Model
         'stockAvailable',
         'netPrice',
         'session',
+        'woocType',
+        'parentId'
     ];
     protected $table = 'sync';
     public $timestamps = false;
