@@ -19,5 +19,6 @@ Route::get('sync/wc/products/{take?}', 'SyncController@syncWCProducts');
 Route::get('sync/wc/product/{sku}', 'SyncController@syncWCProductsBySku');
 Route::get('sync/stock', 'SyncController@syncStock');
 Route::get('sync/orders', 'SyncController@getOrders');
+Route::get('sync/config', 'SyncController@config');
 Route::group(['middleware' => 'auth'], function(){
 });

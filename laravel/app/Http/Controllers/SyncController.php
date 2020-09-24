@@ -27,6 +27,12 @@ class SyncController extends Controller
         $result = Woocommerce::get('');
         var_dump($result);
     }
+    public function config(){
+        echo 'user = '.env('LAUDUS_USER').'<br>';
+        echo 'password = '.env('LAUDUS_PASSWORD').'<br>';
+        echo 'companyVatId = '.env('LAUDUS_COMPANY_VAT_ID').'<br>';
+        echo 'wharehouseId = '.env('LAUDUS_WAREHOUSE_ID').'<br>';
+    }
     private function wpConnection ($function=null, $method='GET', $data=array())
     {
         $response = null;
@@ -220,6 +226,8 @@ class SyncController extends Controller
                             echo $exc->getMessage();
                             echo '<pre>';print_r($item); echo '</pre>';
                         }
+                        $sync->woocType = $item['type'];
+                        $sync->woocParentId = $item['parent_id'];
                         $sync->woocProductId = $item['id'];
                         $sync->status = 2;
                         $sync->save();
@@ -238,6 +246,9 @@ class SyncController extends Controller
         $syncs = Sync::BySku($sku)->paginate($take);
         if ($syncs->count() > 0) {
             foreach ($syncs as $sync) {
+                if ($sync->woocProductId != null) {
+
+                }
                 $WCProduct = $this->getWooCProductBySKU($sync->sku);
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
@@ -245,28 +256,33 @@ class SyncController extends Controller
                             'regular_price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
                         ];
-                        if ($item['type'] != 'variation') {
-                            $fields['price'] = (string)(round($sync->netPrice * 1.19));
-                        }
-                        try {
-                            // var_dump($fields);
-                            if ($item['type'] != 'variation') {
-                                echo ' normal '.$sync->sku.': '.$item['id'].'<br>';
-                                $this->updateWooCProduct($item['id'], $fields); 
-                            } else {
-                                echo ' variante '.$sync->sku.': '.$item['parent_id'].' > '. $item['id'].'<br>';
-                                $this->updateWooCProductVariation($item['parent_id'], $item['id'], $fields);
-                            }
-                        } catch (\Exception $exc) {
-                            echo $exc->getMessage();
-                            echo '<pre>';print_r($item); echo '</pre>';
-                        }
+                        $this->getWoocProduct($item['id'], $item['type'], $item['parent_id']);
+                        $sync->woocType = $item['type'];
+                        $sync->woocParentId = $item['parent_id'];
                         $sync->woocProductId = $item['id'];
                         $sync->status = 2;
                         $sync->save();
                     }
                 }
             }
+        }
+    }
+    private function getWoocProduct($id, $type, $parentId, $fields) {
+        if ($type != 'variation') {
+            $fields['price'] = (string)(round($sync->netPrice * 1.19));
+        }
+        try {
+            // var_dump($fields);
+            if ($type != 'variation') {
+                echo ' normal '.$sync->sku.': '.$id.'<br>';
+                $this->updateWooCProduct($id, $fields); 
+            } else {
+                echo ' variante '.$sync->sku.': '.$id.' > '. $id.'<br>';
+                $this->updateWooCProductVariation($parentId, $id, $fields);
+            }
+        } catch (\Exception $exc) {
+            echo $exc->getMessage();
+            echo '<pre>';echo 'id= '.$id.' > type='. $type. ' parentId='. $parentId; echo '</pre>';
         }
     }
     private function updateWooCProduct($productId, $fields) {
