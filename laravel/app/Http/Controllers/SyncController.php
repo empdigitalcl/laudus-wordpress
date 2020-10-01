@@ -288,6 +288,9 @@ class SyncController extends Controller
     }
     private function updateWooCProduct($productId, $fields) {
         $response = Woocommerce::put('products/'.$productId, $fields);
+        echo '<br>==';
+        print_r($response);
+        echo '==<br>';
     }
     private function updateWooCProductVariation($productId, $variationId, $fields) {
         $method = 'products/'.$productId.'/';
