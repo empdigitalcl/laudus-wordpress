@@ -208,11 +208,11 @@ class SyncController extends Controller
                     foreach ($WCProduct as $item) {
                         echo $sync->sku.': '.$item['id'].'<br>';
                         $fields = [
-                            'price' => (string)(round($sync->netPrice * 1.19)),
+                            'price' => (string)(round($sync->netPrice)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
                         ];
                         if ($item['type'] != 'variation') {
-                            $fields['price'] = (string)(round($sync->netPrice * 1.19));
+                            $fields['price'] = (string)(round($sync->netPrice));
                         }
                         try {
                             if ($item['type'] != 'variation') {
