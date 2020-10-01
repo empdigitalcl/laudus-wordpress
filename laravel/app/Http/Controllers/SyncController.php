@@ -226,6 +226,7 @@ class SyncController extends Controller
                             echo $exc->getMessage();
                             echo '<pre>';print_r($item); echo '</pre>';
                         }
+                        print_r($fields);
                         $sync->woocType = $item['type'];
                         $sync->woocParentId = $item['parent_id'];
                         $sync->woocProductId = $item['id'];
