@@ -28,8 +28,8 @@ class SyncController extends Controller
         var_dump($result);
     }
     public function config(){
-        echo 'user = '.env('LAUDUS_USER').'<br>';
-        echo 'password = '.env('LAUDUS_PASSWORD').'<br>';
+        /* echo 'user = '.env('LAUDUS_USER').'<br>';
+        echo 'password = '.env('LAUDUS_PASSWORD').'<br>'; */
         echo 'companyVatId = '.env('LAUDUS_COMPANY_VAT_ID').'<br>';
         echo 'wharehouseId = '.env('LAUDUS_WAREHOUSE_ID').'<br>';
     }
