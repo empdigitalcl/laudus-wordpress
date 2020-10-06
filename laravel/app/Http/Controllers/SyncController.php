@@ -163,6 +163,7 @@ class SyncController extends Controller
                     $sync->sku = $product->code;
                 }
                 $isUpdate = false;
+                echo $product->code.'>'.$product->unitPrice.' !='. $sync->netPrice.'<br>';
                 if ($product->unitPrice != $sync->netPrice) {
                     $isUpdate = true;
                     $sync->netPrice = $product->unitPrice;
