@@ -154,7 +154,6 @@ class SyncController extends Controller
         $method = 'products/get/list/complete';
         $response = $this->laudusConnection($method, 'GET');
         $session = date('YmdHis');
-        print_r($response);
         if ($response != null) {
             foreach ($response as $product) {
                 $sync = Sync::BySku($product->code)->first();
