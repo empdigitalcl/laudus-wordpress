@@ -187,7 +187,7 @@ class SyncController extends Controller
             foreach ($response as $product) {
                 $sync = Sync::BySku($product->code)->first();
                 if ($sync && $sync->count() > 0) {
-                    echo $product->code.'>'.$product->stock.' !='. $sync->stockAvailable.'<br>';
+                    // echo $product->code.'>'.$product->stock.' !='. $sync->stockAvailable.'<br>';
                     if ($product->stock != $sync->stockAvailable) {
                         $isUpdate = true;
                         $sync->stockAvailable = $product->stock;
