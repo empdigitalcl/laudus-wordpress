@@ -256,7 +256,7 @@ class SyncController extends Controller
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
                         $fields = [
-                            'visible' => $sync->netPrice > 1000 ? true : false,
+                            'status' => $sync->netPrice > 1000 ? 'publish' : 'pending',
                             'regular_price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
                         ];
