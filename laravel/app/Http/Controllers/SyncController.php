@@ -210,6 +210,7 @@ class SyncController extends Controller
                     foreach ($WCProduct as $item) {
                         echo $sync->sku.': '.$item['id'].'<br>';
                         $fields = [
+                            'catalog_visibility' => $sync->netPrice > 1000 ? 'visible' : 'hidden',
                             'status' => $sync->netPrice > 1000 ? 'publish' : 'pending',
                             'regular_price' => (string)(round($sync->netPrice)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
@@ -257,6 +258,7 @@ class SyncController extends Controller
                 if (count($WCProduct) > 0) {
                     foreach ($WCProduct as $item) {
                         $fields = [
+                            'catalog_visibility' => $sync->netPrice > 1000 ? 'visible' : 'hidden',
                             'status' => $sync->netPrice > 1000 ? 'publish' : 'pending',
                             'regular_price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
