@@ -263,7 +263,7 @@ class SyncController extends Controller
                             'regular_price' => (string)(round($sync->netPrice * 1.19)),
                             'stock_quantity' => $sync->stockAvailable > 0 ? (string)($sync->stockAvailable) : '0'
                         ];
-                        $this->getWoocProduct($item['id'], $item['type'], $item['parent_id']);
+                        $this->getWoocProduct($item['id'], $item['type'], $item['parent_id'], $fields);
                         $sync->woocType = $item['type'];
                         $sync->woocParentId = $item['parent_id'];
                         $sync->woocProductId = $item['id'];
